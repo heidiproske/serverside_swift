@@ -47,8 +47,45 @@ router.get("/polls/list") { request, response, next in
     }
 }
 
+// MARK: Post data to OUR API.
+// curl -X POST localhost:8090/polls/create -d "title=More soothing color?&option1=Green&option2=Blue"
+router.post("/polls/create", middleware: BodyParser())
 router.post("/polls/create") { request, response, next in
     defer { next() }
+
+    guard let values = request.body, case .urlEncoded(let body) = values else {
+        try response.status(.badRequest).end()
+        return
+    }
+
+    let fields = ["title", "option1", "option2"]
+    var poll = [String: Any]()
+    for field in fields {
+        if let value = body[field]?.trimmingCharacters(in: .whitespacesAndNewlines), !value.isEmpty {
+            poll[field] = value
+            continue
+        }
+
+        try response.status(.badRequest).end()
+        return
+    }
+
+    // Finish creating the remainder of the object before we insert into CouchDB database
+    poll["votes1"] = 0
+    poll["votes2"] = 0
+    let json = JSON(poll)
+    database.create(json) { id, rev, doc, error in
+        if let id = id {
+            let status = ["status": "ok", "id": id]
+            let result = ["result": status]
+            response.status(.OK).send(json: JSON(result))
+        } else {
+            let errorMessage = error?.localizedDescription ?? "Unknown error"
+            let status = ["status": "error", "errorMessage": errorMessage]
+            let result = ["result": status]
+            response.status(.internalServerError).send(json: JSON(result))
+        }
+    }
 }
 
 router.post("/polls/vote/:pollid/:option") { request, response, next in
