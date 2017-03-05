@@ -25,7 +25,7 @@ router.get("/staff") { request, response, next in
 router.get("/contact") { request, response, next in
     defer { next() }
 
-    response.send("Get in touch with us!")
+    try response.render("contact", context: [:])
 }
 
 Kitura.addHTTPServer(onPort: 8090, with: router) // Any port above 1024 is available for any user, under it requires admin
