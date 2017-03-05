@@ -86,6 +86,7 @@ router.route("/helloDifferent")
 
 // MARK: Named parameters
 // E.g. localhost:8090/games/Katan -> renders -> "Let's play the Katan game"
+// curl -vX GET http://localhost:8090/games/Katan
 router.get("/games/:name") { request, response, next in
     defer { next() }
     guard let name = request.parameters["name"] else { return }
@@ -100,6 +101,34 @@ router.get("/platforms") { request, response, next in
         return
     }
     response.send("Loading the \(name) platform")
+}
+
+// MARK: Form parameters
+router.post("/employees/add", middleware: BodyParser())
+router.post("/employees/add") { request, response, next in
+    guard let values = request.body, case .urlEncoded(let body) = values else { // Try to get a form out of their body
+        try response.status(.badRequest).end()
+        return
+    }
+
+    if let name = body["name"] {
+        response.send("Adding new employee... \(name)")
+    }
+    next()
+}
+
+// MARK: JSON parameters
+// curl -vX POST -H "content-type: application/json" http://localhost:8090/employees/edit -d '{"name": "Heidi"}'
+router.post("/employees/edit", middleware: BodyParser())
+router.post("/employees/edit") { request, response, next in
+    guard let values = request.body, case .json(let body) = values else {
+        try response.status(.badRequest).end()
+        return
+    }
+    if let name = body["name"].string {
+        response.send("Edited employee \(name)")
+    }
+    next()
 }
 
 // MARK: - Kitura
