@@ -10,7 +10,15 @@ let connectionProperties = ConnectionProperties(host: "localhost", port: 5984, s
 let client = CouchDBClient(connectionProperties: connectionProperties)
 let database = client.database("polls")
 
+// MARK: Utility functions
+func createResponseForError(_ error: NSError) -> JSON {
+    let status = ["status": "error", "message": error.localizedDescription]
+    let result = ["result": status]
+    return JSON(result)
+}
+
 // MARK: Routes
+
 router.get("/polls/list") { request, response, next in
     defer { next() }
     // Re the completion blocks, note that Kitura is a synchronous API masking as an async one. Don't be fooled.
@@ -18,8 +26,7 @@ router.get("/polls/list") { request, response, next in
     database.retrieveAll(includeDocuments: true) { docs, error in
         if let error = error {
             // We're an API, so must send back JSON response
-            let status = ["status": "error", "message": error.localizedDescription]
-            let json = JSON(["result": status])
+            let json = createResponseForError(error)
             response.status(.internalServerError).send(json: json)
             return
         } else {
@@ -47,7 +54,7 @@ router.get("/polls/list") { request, response, next in
     }
 }
 
-// MARK: Post data to OUR API.
+// MARK: Post new polls to OUR API.
 // curl -X POST localhost:8090/polls/create -d "title=More soothing color?&option1=Green&option2=Blue"
 router.post("/polls/create", middleware: BodyParser())
 router.post("/polls/create") { request, response, next in
