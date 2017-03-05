@@ -6,6 +6,13 @@ import LoggerAPI // General purpose protocol that anyone can use
 HeliumLogger.use()
 Log.info("About to initialize our router")
 
+let bios = [
+    "kirk": "My name is James Kirk and I love snakes.",
+    "picard": "My name is Jean-Luc and I love fish.",
+    "archer": "My name is Jonathan and I love beagles.",
+    "janeway": "My name is Kathryn and I want to hug every hamster."
+]
+
 let router = Router()
 router.setDefault(templateEngine: StencilTemplateEngine())
 
@@ -18,8 +25,24 @@ router.get("/") { request, response, next in
 
 router.get("/staff") { request, response, next in
     defer { next() }
+    var context = [String: Any]()
+    context["people"] = bios.keys.sorted()
+    try response.render("staff", context: context)
+}
 
-    response.send("Meet our great team!")
+router.get("/staff/:name") { request, response, next in
+    defer { next() }
+    guard let name = request.parameters["name"] else { return }
+
+    var context = [String: Any]()
+    if let bio = bios[name] {
+        context["name"] = name
+        context["bio"] = bio
+    }
+
+    context["people"] = bios.keys.sorted()
+
+    try response.render("teamMember", context: context)
 }
 
 router.get("/contact") { request, response, next in

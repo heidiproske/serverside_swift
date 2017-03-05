@@ -1,0 +1,8 @@
+<html>
+<body>
+<h1>Meet our great team!</h1>
+{% include "staffList.stencil" %}
+
+{% include "footer.stencil" %}
+</body>
+</html>
