@@ -1,7 +1,9 @@
 <p>Choose a staff member to view:</p>
 <ul>
-{% for person in people %}
+{% for person in people2 %}
 <li><a href="/staff/{{ person }}">{{ person|capitalize }}</a></li>
+{% empty %}
+<li>No staff members found</li>
 {% endfor %}
 </ul>
 
