@@ -2,5 +2,6 @@
 <body>
 <h1>Get in Touch</h1>
 Call us at 555-123-4567
+{% include "footer.stencil" %}
 </body>
 </html>
