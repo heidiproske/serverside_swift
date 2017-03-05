@@ -16,7 +16,9 @@ let bios = [
 let router = Router()
 router.setDefault(templateEngine: StencilTemplateEngine())
 
-// Don't care if it was a GET, POST etc - hence using all
+// Note the "static" is defined in prefixes of all our URLs in the master.stencil
+router.all("/static", middleware: StaticFileServer()) // Middleware, acts as a pipeline that jumps in when needed (like encryption, compression etc)
+
 router.get("/") { request, response, next in
     defer { next() }
 

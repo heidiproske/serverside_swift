@@ -1,7 +1,7 @@
 {% extends "master.stencil" %}
 {% block body %}
 <h1>Get in Touch</h1>
-Call us at 555-123-4567
+<p>Call us at 555-123-4567</p>
 {% endblock %}
 
 {% block title %}Contact{% endblock %}
