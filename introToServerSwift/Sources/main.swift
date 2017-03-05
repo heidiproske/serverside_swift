@@ -11,19 +11,21 @@ router.setDefault(templateEngine: StencilTemplateEngine())
 
 // Don't care if it was a GET, POST etc - hence using all
 router.get("/") { request, response, next in
-    try response.render("home", context: [:])
+    defer { next() }
 
-    next() // like a pipeline
+    try response.render("home", context: [:])
 }
 
 router.get("/staff") { request, response, next in
+    defer { next() }
+
     response.send("Meet our great team!")
-    next()
 }
 
 router.get("/contact") { request, response, next in
+    defer { next() }
+
     response.send("Get in touch with us!")
-    next()
 }
 
 Kitura.addHTTPServer(onPort: 8090, with: router) // Any port above 1024 is available for any user, under it requires admin
