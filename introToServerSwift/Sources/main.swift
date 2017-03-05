@@ -1,19 +1,18 @@
 import HeliumLogger // Trivial Logging API that implements the LoggerAPI
 import Kitura
+import KituraStencil // This wraps Stencil
 import LoggerAPI // General purpose protocol that anyone can use
 
 HeliumLogger.use()
 Log.info("About to initialize our router")
 
 let router = Router()
+router.setDefault(templateEngine: StencilTemplateEngine())
 
 // Don't care if it was a GET, POST etc - hence using all
 router.get("/") { request, response, next in
-    response.send("<html>")
-    response.send("<body>")
-    response.send("<h1>Welcome to Million Hairs</h1>")
-    response.send("</body>")
-    response.send("</html>")
+    try response.render("home", context: [:])
+
     next() // like a pipeline
 }
 
