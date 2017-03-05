@@ -17,8 +17,9 @@ func createResponseForError(_ error: NSError) -> JSON {
     return JSON(result)
 }
 
-// MARK: Routes
+// MARK: - Routes
 
+// MARK: List all polls
 router.get("/polls/list") { request, response, next in
     defer { next() }
     // Re the completion blocks, note that Kitura is a synchronous API masking as an async one. Don't be fooled.
