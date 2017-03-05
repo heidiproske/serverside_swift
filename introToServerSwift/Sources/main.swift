@@ -9,7 +9,11 @@ let router = Router()
 
 // Don't care if it was a GET, POST etc - hence using all
 router.get("/") { request, response, next in
-    response.send("Welcome to Million Hairs")
+    response.send("<html>")
+    response.send("<body>")
+    response.send("<h1>Welcome to Million Hairs</h1>")
+    response.send("</body>")
+    response.send("</html>")
     next() // like a pipeline
 }
 
