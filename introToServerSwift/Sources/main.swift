@@ -92,6 +92,16 @@ router.get("/games/:name") { request, response, next in
     response.send("Let's play the \(name) game")
 }
 
+// MARK: Query parameters
+// curl -vX GET http://localhost:8090/platforms?name="HOLA" -> renders -> Loading the "HOLA" platform
+router.get("/platforms") { request, response, next in
+    guard let name = request.queryParameters["name"] else {
+        try response.status(.badRequest).end()
+        return
+    }
+    response.send("Loading the \(name) platform")
+}
+
 // MARK: - Kitura
 
 Kitura.addHTTPServer(onPort: 8090, with: router) // Any port above 1024 is available for any user, under it requires admin
