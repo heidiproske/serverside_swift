@@ -124,9 +124,8 @@ router.post("/polls/vote/:pollid/:option") { request, response, next in
             }
             database.update(identifier, rev: rev, document: newDocument) { newRev, newDoc, error in
                 if let error = error {
-                    let status = ["status": "error"]
-                    let result = ["result": status]
-                    response.status(.conflict).send(json: JSON(result))
+                    let json = createResponseForError(error)
+                    response.status(.conflict).send(json: json)
                 } else {
                     let status = ["status": "ok"]
                     let result = ["result": status]
@@ -137,6 +136,41 @@ router.post("/polls/vote/:pollid/:option") { request, response, next in
     }
 }
 
+// MARK: Delete a poll
+// curl -X DELETE localhost:8090/polls/delete/<id>
+// curl -X DELETE localhost:8090/polls/delete/245226ca9fc3a879cece6242ff002911
+// After that you can verify via http://localhost:8090/polls/list that the vote got deleted
+router.delete("/polls/delete/:pollid") { request, response, next in
+    defer { next() }
+
+    guard let pollIdentifier = request.parameters["pollid"] else {
+        try response.status(.badRequest).end()
+        return
+    }
+
+    database.retrieve(pollIdentifier) { doc, error in
+        if let error = error {
+            let json = createResponseForError(error)
+            response.status(.forbidden).send(json: json)
+            return
+        } else if let doc = doc {
+            let identifier = doc["_id"].stringValue
+            let rev = doc["_rev"].stringValue
+
+            database.delete(identifier, rev: rev, callback: { error in
+                if let error = error {
+                    let status = ["status": "error"]
+                    let result = ["result": status]
+                    response.status(.internalServerError).send(json: JSON(result))
+                } else {
+                    let status = ["status": "ok"]
+                    let result = ["result": status]
+                    response.status(.OK).send(json: JSON(result))
+                }
+            })
+        }
+    }
+}
 
 // MARK: Kitura
 Kitura.addHTTPServer(onPort: 8090, with: router)
