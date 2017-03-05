@@ -1,5 +1,6 @@
-<html>
-<body>
+{% extends "master.stencil" %}
+{% block body %}
+
 {% if name %}
 	<h1>{{ name|capitalize }}</h1>
 	<p>{{ bio }}</p>
@@ -10,6 +11,4 @@
 
 {% include "staffList.stencil" %}
 
-{% include "footer.stencil" %}
-</body>
-</html>
+{% endblock %}

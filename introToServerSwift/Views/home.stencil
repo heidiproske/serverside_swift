@@ -1,7 +1,5 @@
-<html>
-<body>
+{% extends "master.stencil" %}
+{% block body %}
 <h1>Welcome to Million Hairs</h1>
-{% include "footer.stencil" %}
-</body>
-</html>
+{% endblock %}
 
