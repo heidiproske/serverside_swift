@@ -95,8 +95,46 @@ router.post("/polls/create") { request, response, next in
     }
 }
 
+// MARK: Vote for a poll
+// Use http://localhost:8090/polls/list to look up the poll IDs for all the polls, then vote for one with:
+// curl -X POST localhost:8090/polls/vote/245226ca9fc3a879cece6242ff004457/2
+// After the above call, verify that the vote was posted.
 router.post("/polls/vote/:pollid/:option") { request, response, next in
     defer { next() }
+
+    guard let pollIdentifier = request.parameters["pollid"], let option = request.parameters["option"] else {
+        try response.status(.badRequest).end()
+        return
+    }
+
+    database.retrieve(pollIdentifier) { doc, error in
+        if let error = error {
+            let json = createResponseForError(error)
+            response.status(.forbidden).send(json: json)
+            return
+        } else if let doc = doc {
+            let identifier = doc["_id"].stringValue
+            let rev = doc["_rev"].stringValue
+
+            var newDocument = doc
+            if option == "1" {
+                newDocument["votes1"].intValue += 1
+            } else {
+                newDocument["votes2"].intValue += 1
+            }
+            database.update(identifier, rev: rev, document: newDocument) { newRev, newDoc, error in
+                if let error = error {
+                    let status = ["status": "error"]
+                    let result = ["result": status]
+                    response.status(.conflict).send(json: JSON(result))
+                } else {
+                    let status = ["status": "ok"]
+                    let result = ["result": status]
+                    response.status(.OK).send(json: JSON(result))
+                }
+            }
+        }
+    }
 }
 
 
@@ -104,7 +142,7 @@ router.post("/polls/vote/:pollid/:option") { request, response, next in
 Kitura.addHTTPServer(onPort: 8090, with: router)
 Kitura.run()
 
-// MARK: - Curl Commands
+// MARK: - Curl Command HOWTOs
 
 // When you get started, figure out the URL for your CouchDB instance. i.e. launch the admin console
 // e.g. http://127.0.0.1:5984
