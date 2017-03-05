@@ -60,9 +60,10 @@ router.get("/contact") { request, response, next in
     try response.render("contact", context: [:])
 }
 
-// MARK:- Chaining
+// MARK:- Router Chaining
 
 // MARK: Separate code for same request into smaller chunks
+// E.g. localhost:8090/hello renders -> "HelloWorld"
 router.get("/hello", handler: { request, response, next in
     defer { next() }
     response.send("Hello")
@@ -80,6 +81,16 @@ router.route("/helloDifferent")
         defer { next() }
         response.send("WorldDiff")
     }
+
+// MARK:- Router parameters
+
+// MARK: Named parameters
+// E.g. localhost:8090/games/Katan -> renders -> "Let's play the Katan game"
+router.get("/games/:name") { request, response, next in
+    defer { next() }
+    guard let name = request.parameters["name"] else { return }
+    response.send("Let's play the \(name) game")
+}
 
 // MARK: - Kitura
 
