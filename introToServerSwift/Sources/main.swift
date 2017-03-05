@@ -6,6 +6,7 @@ import LoggerAPI // General purpose protocol that anyone can use
 HeliumLogger.use()
 Log.info("About to initialize our router")
 
+// MARK: Website for Million Hairs
 let bios = [
     "kirk": "My name is James Kirk and I love snakes.",
     "picard": "My name is Jean-Luc and I love fish.",
@@ -59,6 +60,9 @@ router.get("/contact") { request, response, next in
     try response.render("contact", context: [:])
 }
 
+// MARK:- Chaining
+
+// MARK: Separate code for same request into smaller chunks
 router.get("/hello", handler: { request, response, next in
     defer { next() }
     response.send("Hello")
@@ -66,6 +70,18 @@ router.get("/hello", handler: { request, response, next in
     defer { next() }
     response.send("World")
 })
+
+// MARK: Separate same endpoint for different request types
+router.route("/helloDifferent")
+    .get() { request, response, next in
+        defer { next() }
+        response.send("HelloDiff")
+    }.post() { request, response, next in
+        defer { next() }
+        response.send("WorldDiff")
+    }
+
+// MARK: - Kitura
 
 Kitura.addHTTPServer(onPort: 8090, with: router) // Any port above 1024 is available for any user, under it requires admin
 
