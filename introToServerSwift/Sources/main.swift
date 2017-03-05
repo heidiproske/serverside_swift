@@ -1,4 +1,9 @@
+import HeliumLogger // Trivial Logging API that implements the LoggerAPI
 import Kitura
+import LoggerAPI // General purpose protocol that anyone can use
+
+HeliumLogger.use()
+Log.info("About to initialize our router")
 
 let router = Router()
 
