@@ -12,3 +12,6 @@
 {% include "staffList.stencil" %}
 
 {% endblock %}
+
+{% block title %}{{ name|capitalize }}{% endblock %}
+

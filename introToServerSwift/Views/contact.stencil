@@ -4,3 +4,5 @@
 Call us at 555-123-4567
 {% endblock %}
 
+{% block title %}Contact{% endblock %}
+

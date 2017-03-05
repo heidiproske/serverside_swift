@@ -1,4 +1,7 @@
 <html>
+<head>
+<title>{% block title %}{% endblock %} - Million Hairs Vet Clinic</title>
+</head>
 <body>
 {% block body %}{% endblock %}
 {% include "footer.stencil" %}
