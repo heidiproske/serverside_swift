@@ -29,7 +29,13 @@ router.get("/staff") { request, response, next in
     defer { next() }
     var context = [String: Any]()
     context["people"] = bios.keys.sorted()
-    try response.render("staff", context: context)
+
+    do {
+        try response.render("staff", context: context)
+    } catch {
+//        try response.render("error", context: [:])
+        print(error)
+    }
 }
 
 router.get("/staff/:name") { request, response, next in
