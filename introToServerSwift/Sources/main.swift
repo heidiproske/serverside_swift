@@ -59,6 +59,14 @@ router.get("/contact") { request, response, next in
     try response.render("contact", context: [:])
 }
 
+router.get("/hello", handler: { request, response, next in
+    defer { next() }
+    response.send("Hello")
+}, { request, response, next in
+    defer { next() }
+    response.send("World")
+})
+
 Kitura.addHTTPServer(onPort: 8090, with: router) // Any port above 1024 is available for any user, under it requires admin
 
 Kitura.run() // Any code after this line will never run
