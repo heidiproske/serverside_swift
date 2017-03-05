@@ -16,13 +16,6 @@ router.get("/polls/list") { request, response, next in
     // Re the completion blocks, note that Kitura is a synchronous API masking as an async one. Don't be fooled.
     // The trailing closure is really just for readability.
     database.retrieveAll(includeDocuments: true) { docs, error in
-        /*
-         $ curl -X GET "$COUCH/polls/_all_docs?include_docs=false"
-         {"total_rows":2,"offset":0,"rows":[
-         {"id":"245226ca9fc3a879cece6242ff002911","key":"245226ca9fc3a879cece6242ff002911","value":{"rev":"1-06284d0a1c326569bcdd158574cbcdcc"}},
-         {"id":"245226ca9fc3a879cece6242ff0030dd","key":"245226ca9fc3a879cece6242ff0030dd","value":{"rev":"1-d4e29de380f7794b5414b9e42fc15106"}}
-         ]}
-         */
         if let error = error {
             // We're an API, so must send back JSON response
             let status = ["status": "error", "message": error.localizedDescription]
@@ -34,7 +27,17 @@ router.get("/polls/list") { request, response, next in
             var polls = [[String: Any]]()
 
             if let docs = docs {
-                // TODO: append a new poll with the data from this doc
+                for document in docs["rows"].arrayValue {
+                    var poll = [String: Any]()
+                    poll["id"] = document["id"].stringValue
+                    poll["title"] = document["doc"]["title"].stringValue
+                    poll["option1"] = document["doc"]["option1"].stringValue
+                    poll["option2"] = document["doc"]["option2"].stringValue
+                    poll["votes1"] = document["doc"]["votes1"].stringValue
+                    poll["votes2"] = document["doc"]["votes2"].stringValue
+
+                    polls.append(poll)
+                }
             }
 
             let result: [String: Any] = ["result": status, "polls": polls]
@@ -74,4 +77,42 @@ Kitura.run()
  
  $ curl -X GET $COUCH/polls
  {"db_name":"polls","update_seq":"0-g1AAAABXeJzLYWBgYMpgTmEQTM4vTc5ISXLIyU9OzMnILy7JAUklMiTV____PyuRAY-iPBYgydAApP5D1GYBAJmvHGw","sizes":{"file":8488,"external":0,"active":0},"purge_seq":0,"other":{"data_size":0},"doc_del_count":0,"doc_count":0,"disk_size":8488,"disk_format_version":6,"data_size":0,"compact_running":false,"instance_start_time":"0"}
+ */
+
+// MARK: Add data
+// When trying to insert JSON data in bash, you might want to make an alias to simplify the commands
+// $ JSON="Content-Type: application/json"
+
+/*
+ $ curl -X POST -H "$JSON" $COUCH/polls -d '{"title": "What color iPhone is cooler?", "option1": "Jet Black", "option2": "Rose Gold", "votes1": 0, "votes2": 0}'
+ {"ok":true,"id":"245226ca9fc3a879cece6242ff003ff3","rev":"1-9b40e3a879e840d6d246588a83eb05d3"}
+ $ curl -X POST -H "$JSON" $COUCH/polls -d '{"title": "Which is better: Android or iOS?", "option1": "Android", "option2": "iOS", "votes1": 0, "votes2": 0}'
+ {"ok":true,"id":"245226ca9fc3a879cece6242ff0030dd","rev":"1-d4e29de380f7794b5414b9e42fc15106"}
+
+*/
+
+// MARK: Retrieve data
+/*
+ $ curl -X GET "$COUCH/polls/_all_docs" 
+     is the same as
+ $ curl -X GET "$COUCH/polls/_all_docs?include_docs=false"
+ {"total_rows":1,"offset":0,"rows":[
+ {"id":"245226ca9fc3a879cece6242ff003ff3","key":"245226ca9fc3a879cece6242ff003ff3","value":{"rev":"1-9b40e3a879e840d6d246588a83eb05d3"}}
+ ]}
+
+ $ curl -X GET "$COUCH/polls/_all_docs?include_docs=true"
+ {"total_rows":1,"offset":0,"rows":[
+    {"id":"245226ca9fc3a879cece6242ff003ff3",
+     "key":"245226ca9fc3a879cece6242ff003ff3",
+     "value":{"rev":"1-9b40e3a879e840d6d246588a83eb05d3"},
+     "doc":{
+        "_id":"245226ca9fc3a879cece6242ff003ff3",
+        "_rev":"1-9b40e3a879e840d6d246588a83eb05d3",
+        "title":"What color iPhone is cooler?",
+        "option1":"Jet Black",
+        "option2":"Rose Gold",
+        "votes1":0,
+        "votes2":0}
+    }]
+ }
  */
