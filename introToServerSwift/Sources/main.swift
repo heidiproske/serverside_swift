@@ -131,6 +131,12 @@ router.post("/employees/edit") { request, response, next in
     next()
 }
 
+// MARK: Using RegEx
+// curl -vX GET http://localhost:8090/search/2016/twostraws
+router.get("/search/([0-9]+)/([A-Za-z]+)") {(request, response, next) in
+    response.send("Searching...")
+}
+
 // MARK: - Kitura
 
 Kitura.addHTTPServer(onPort: 8090, with: router) // Any port above 1024 is available for any user, under it requires admin
