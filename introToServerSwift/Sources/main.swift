@@ -8,13 +8,18 @@ Log.info("About to initialize our router")
 let router = Router()
 
 // Don't care if it was a GET, POST etc - hence using all
-router.all("/") { (request, response, next) in
-    response.send("Hello, Kitura")
+router.get("/") { request, response, next in
+    response.send("Welcome to Million Hairs")
     next() // like a pipeline
 }
 
-router.all("/") { (request, response, next) in
-    response.send("Here's the second completion")
+router.get("/staff") { request, response, next in
+    response.send("Meet our great team!")
+    next()
+}
+
+router.get("/contact") { request, response, next in
+    response.send("Get in touch with us!")
     next()
 }
 
